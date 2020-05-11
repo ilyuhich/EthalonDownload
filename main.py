@@ -4,6 +4,8 @@ import shutil
 from cam_list import cam_list
 import time
 
+start_time = time.time()
+
 url = 'http://192.168.34.8:8080/etalon/'
 cam_list_downloaded = []
 
@@ -26,7 +28,7 @@ system('cls')
 #print('\n'.join(cam_list))
 #system('cls')
 
-laps = 0.01
+laps = 0
 for camera in cam_list:
     print(f"Elapsed to fetch {len(cam_list) - len(cam_list_downloaded)} files\n")
     file = camera + '.jpg'
@@ -50,3 +52,4 @@ for camera in cam_list:
     system('cls')
 
 print(f'\nDownloaded {len(cam_list_downloaded)} from {len(cam_list)} files.')
+print(f'I have wasted {(time.time() - start_time)} seconds to doing this work')
