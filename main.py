@@ -19,60 +19,56 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-new_look = (
-    f'{bcolors.WARNING}Getting system ready to fetch data from{bcolors.ENDC}',
-    f'{bcolors.WARNING}Checking paths, files and route to host {bcolors.ENDC}',
-    f'{bcolors.WARNING}Wait please...\n\nConnecting to host {bcolors.ENDC}',
-
-)
-
-
-def wait_for(text, url, laps):  # "scanning" wait_for
-    for j in range(randint(15, 50)):
-        for i in range(10):
-            system('cls')
-            print(f'{text} {url} {i * "."}')
-            print("X" * j)
-            time.sleep(laps / 20)
-    time.sleep(laps)
-
-
 start_time = time.time()
 
 url = 'http://192.168.34.8:8080/etalon/'
 cam_list_downloaded = []
-laps = 1
+cam_list_not_loaded = []
+laps = 1/100
 
-for text in new_look:
-    wait_for(text, url, laps / 10)
 
 system('cls')
 print(
-    f'{bcolors.WARNING}Need to to fetch{bcolors.FAIL} {len(cam_list) - len(cam_list_downloaded)} {bcolors.WARNING}files from {url}{bcolors.ENDC}')
+    f'\n\n\n\n{bcolors.WARNING}Need to to fetch{bcolors.FAIL} {len(cam_list) - len(cam_list_downloaded)} {bcolors.WARNING}files from {url}{bcolors.ENDC}')
 cowsay.daemon(f"{bcolors.WARNING}All is ready to start downloading files.\nPlease press Enter to START.{bcolors.ENDC}")
 input()
 system('cls')
 
 laps = laps
+check = 0
+
 for camera in cam_list:
-    print(f"\n\n{bcolors.FAIL}DON'T CLOSE APPLICATION OR SHUTDOWN THE COMPUTER{bcolors.ENDC}")
-    print(f"Elapsed to fetch {len(cam_list) - len(cam_list_downloaded)} files")
-    print('.' * (len(cam_list) - len(cam_list_downloaded)))
     file = camera + '.jpg'
     full_path = url + file
-    source = 'C:/Users/coordinator2/Desktop/Чудаков/Эксперименты Таблицы/Python/EthalonDownload/' + file
-    destination = 'C:/Users/coordinator2/Desktop/Чудаков/Эксперименты Таблицы/Python/EthalonDownload/downloaded/' + file
-    print(f'\nFetching {file}\n')
+    destination = 'C:/downloaded/' + file
+    print(f"\n\n{bcolors.FAIL}DON'T CLOSE THE APPLICATION OR SHUTDOWN THE COMPUTER{bcolors.ENDC}\n")
+    print(f"Elapsed to fetch {len(cam_list) - len(cam_list_downloaded)} files. \nFetching {file}\n ")
+    print('.' * (len(cam_list) - len(cam_list_downloaded)))
+
     filereq = requests.get(full_path, stream=True)
-    with open(destination, "wb") as receive:
-        shutil.copyfileobj(filereq.raw, receive)
+    if filereq.status_code == 200:  #check status page
+        check += 1
+        with open(destination, "wb") as receive:
+            shutil.copyfileobj(filereq.raw, receive)
+    else:
+        cam_list_not_loaded.append(camera)
     del filereq
     cam_list_downloaded.append(camera)
-
-    print('Succesful! \nWill process next file...')
-    time.sleep(laps/5)
     system('cls')
 
-print(f'\nDownloaded {len(cam_list_downloaded)} from {len(cam_list)} files.')
-print(f'I have wasted {(time.time() - start_time)} seconds to do this work')
+print(f"Available {check} from {str(len(cam_list))}")
+print(f'I wasted {(time.time() - start_time)} seconds to check')
+print("Files with report also saved in output directory.")
+
+
+file = ('C:/downloaded/!Отсутствуют.txt', 'w+')
+with open('C:/downloaded/!Отсутствуют.txt', 'w') as f:
+    for item in cam_list_not_loaded:
+        f.write("%s\n" % item)
+
+file = ('C:/downloaded/!Скачано.txt', 'w+')
+with open('C:/downloaded/!Скачано.txt', 'w') as f:
+    for item in cam_list_downloaded:
+        f.write("%s\n" % item)
+
 
